@@ -82,12 +82,12 @@ public class ChangeStationInfoStepDefs extends BaseSettings {
 
         responseStationInfo = api.getResponse().getBody().as(StationInfo.class);
 
-        assertEquals(responseStationInfo.getExternalId(), stationInfo.getExternalId());
-        assertEquals(responseStationInfo.getName(), stationInfo.getName());
-        assertEquals(responseStationInfo.getLatitude().compareTo(stationInfo.getLatitude()), 0);
-        assertEquals(responseStationInfo.getLongitude().compareTo(stationInfo.getLongitude()), 0);
-        assertEquals(responseStationInfo.getAltitude().compareTo(stationInfo.getAltitude()), 0);
-        assertEquals(responseStationInfo.getId(), registeredStation.getId());
+        assertEquals(stationInfo.getExternalId(), responseStationInfo.getExternalId());
+        assertEquals(stationInfo.getName(), responseStationInfo.getName());
+        assertEquals(0, responseStationInfo.getLatitude().compareTo(stationInfo.getLatitude()));
+        assertEquals(0, responseStationInfo.getLongitude().compareTo(stationInfo.getLongitude()));
+        assertEquals(0, responseStationInfo.getAltitude().compareTo(stationInfo.getAltitude()));
+        assertEquals(registeredStation.getId(), responseStationInfo.getId());
 
         /* Asserts that station creation time is within 1 micros of it's real creation */
         MatcherAssert.assertThat(responseStationInfo.getCreatedAt(),

@@ -58,12 +58,12 @@ public class RegisterStationStepDefs extends BaseSettings {
 
         responseStationInfo = api.getResponse().getBody().as(StationInfo.class);
 
-        assertEquals(responseStationInfo.getExternalId(), stationInfo.getExternalId());
-        assertEquals(responseStationInfo.getName(), stationInfo.getName());
-        assertEquals(responseStationInfo.getLatitude().compareTo(stationInfo.getLatitude()), 0);
-        assertEquals(responseStationInfo.getLongitude().compareTo(stationInfo.getLongitude()), 0);
-        assertEquals(responseStationInfo.getAltitude().compareTo(stationInfo.getAltitude()), 0);
-        assertEquals(responseStationInfo.getId().length(), 24);
+        assertEquals(stationInfo.getExternalId(), responseStationInfo.getExternalId());
+        assertEquals(stationInfo.getName(), responseStationInfo.getName());
+        assertEquals(0, responseStationInfo.getLatitude().compareTo(stationInfo.getLatitude()));
+        assertEquals(0, responseStationInfo.getLongitude().compareTo(stationInfo.getLongitude()));
+        assertEquals(0, responseStationInfo.getAltitude().compareTo(stationInfo.getAltitude()));
+        assertEquals(24, responseStationInfo.getId().length());
 
         /* Asserts that station creation time is within 1 minute of now */
         MatcherAssert.assertThat(responseStationInfo.getCreatedAt(),

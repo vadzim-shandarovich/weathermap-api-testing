@@ -6,13 +6,11 @@ import org.example.base.EndPoints;
 import org.example.base.OperationType;
 import org.example.cucumber.objects.StationInfo;
 import io.cucumber.java.en.And;
-import io.cucumber.java.en.Given;
 import io.cucumber.java.en.When;
 import org.hamcrest.MatcherAssert;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.Map;
-import static io.restassured.RestAssured.given;
 import static org.exparity.hamcrest.date.DateMatchers.within;
 import static org.junit.Assert.assertEquals;
 
@@ -20,7 +18,6 @@ import static org.junit.Assert.assertEquals;
  * Contains step definitions for change station feature
  */
 public class ChangeStationInfoStepDefs extends BaseSettings {
-    private StationInfo registeredStation;
 
     /*
      * Constructor for implementing Dependency injection.
@@ -28,39 +25,6 @@ public class ChangeStationInfoStepDefs extends BaseSettings {
      */
     public ChangeStationInfoStepDefs(API api) {
         super(api);
-    }
-
-    @Given("there is registered weather station for {string} API key")
-    public void thereIsRegisteredWeatherStationForAPIKey(String appid, StationInfo stationInfo) {
-        request = given().queryParam("appid", appid);
-        response = request.when()
-                .body(stationInfo)
-                .post(EndPoints.STATIONS);
-
-        response.then()
-                .spec(responseSpecification)
-                .assertThat()
-                .statusCode(201);
-
-        registeredStation = response.getBody()
-                .as(StationInfo.class);
-
-        /*
-         * Store all stations (appId and stationId)
-         * created for tests to delete them after test suite end
-         */
-        createdTestStations.put(appid, registeredStation.getId());
-    }
-
-    @Given("a customer with active API key {string} has chosen the station")
-    @Given("a customer with inactive API key {string} has chosen the station")
-    public void aCustomerWithActiveKeyHasChosenTheStation(String appid) {
-        request = given()
-                .queryParam("appid", appid)
-                .pathParam("stationId", registeredStation.getId());
-
-        api.setRequest(request);
-        api.setAppId(appid);
     }
 
     @When("a customer provides valid station info for change")
@@ -87,11 +51,11 @@ public class ChangeStationInfoStepDefs extends BaseSettings {
         assertEquals(0, responseStationInfo.getLatitude().compareTo(stationInfo.getLatitude()));
         assertEquals(0, responseStationInfo.getLongitude().compareTo(stationInfo.getLongitude()));
         assertEquals(0, responseStationInfo.getAltitude().compareTo(stationInfo.getAltitude()));
-        assertEquals(registeredStation.getId(), responseStationInfo.getId());
+        assertEquals(api.getRegisteredStation().getId(), responseStationInfo.getId());
 
         /* Asserts that station creation time is within 1 micros of it's real creation */
         MatcherAssert.assertThat(responseStationInfo.getCreatedAt(),
-                                 within(1, ChronoUnit.MICROS, registeredStation.getCreatedAt()));
+                                 within(1, ChronoUnit.MICROS, api.getRegisteredStation().getCreatedAt()));
         /* Asserts that station update time is within 1 minute of now */
         MatcherAssert.assertThat(responseStationInfo.getUpdatedAt(),
                                  within(1, ChronoUnit.MINUTES, new Date()));
@@ -114,22 +78,5 @@ public class ChangeStationInfoStepDefs extends BaseSettings {
 
         api.setResponse(response);
         api.setOperationType(OperationType.STATION_CHANGE);
-    }
-
-    @Given("a customer without API key has chosen the station")
-    public void aCustomerWithoutAPIKeyHasChosenTheStation() {
-        request = given()
-                .pathParam("stationId", registeredStation.getId());
-        api.setRequest(request);
-    }
-
-    @Given("a customer with active API key has chosen nonexistent station")
-    public void aCustomerWithActiveAPIKeyHasChosenNonexistentStation(Map<String, String> requestParams) {
-        request = given()
-                .queryParam("appid", requestParams.get("appid"))
-                .pathParam("stationId", requestParams.get("stationId"));
-
-        api.setRequest(request);
-        api.setAppId(requestParams.get("appid"));
     }
 }

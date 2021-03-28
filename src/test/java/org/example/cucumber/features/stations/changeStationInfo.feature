@@ -155,14 +155,14 @@ Feature: Change information about the station
 
   Rule: Changing nonexistent station
 
-  @negative
-  @all
-  Scenario: Change station info for nonexistent station
-    Given a customer with active API key has chosen nonexistent station
-      |appid     |643f0696190d59412564908853c0bfc6|
-      |stationId |nonexistentstationid            |
-    When a customer provides valid station info for change
-      |external_id |name           | longitude |latitude |altitude |
-      |MSK_TEST001 |Minsk name 001 |27.57      |53.9     |222      |
-    Then the service gives response status code 400
-    And response message includes "Station id not valid"
+    @negative
+    @all
+    Scenario: Change station info for nonexistent station
+      Given a customer with active API key has chosen nonexistent station
+        |appid     |643f0696190d59412564908853c0bfc6|
+        |stationId |nonexistentstationid            |
+      When a customer provides valid station info for change
+        |external_id |name           | longitude |latitude |altitude |
+        |MSK_TEST001 |Minsk name 001 |27.57      |53.9     |222      |
+      Then the service gives response status code 400
+      And response message includes "Station id not valid"
